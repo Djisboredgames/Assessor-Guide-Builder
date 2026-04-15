@@ -56,6 +56,126 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+def _dark_overrides() -> str:
+    """CSS overrides for every Streamlit native widget in dark mode."""
+    return """
+/* ═══ DARK MODE COMPONENT OVERRIDES ═══ */
+
+/* ── Markdown & general text ── */
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stMarkdownContainer"] span,
+[data-testid="stMarkdownContainer"] strong,
+[data-testid="stMarkdownContainer"] em,
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stText"] p,
+.stMarkdown p { color: #E2E8F0 !important; }
+
+/* ── Captions ── */
+[data-testid="stCaptionContainer"] p,
+small { color: #8B949E !important; }
+
+/* ── Form labels ── */
+label,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] span { color: #CBD5E0 !important; }
+
+/* ── Text inputs & textareas ── */
+.stTextInput input,
+.stTextArea textarea,
+[data-baseweb="input"] input,
+[data-baseweb="textarea"] textarea,
+input[type="text"], input[type="password"] {
+    background-color: #1E2432 !important;
+    color: #E2E8F0 !important;
+    border-color: #3D4A5C !important;
+}
+
+/* ── Number input ── */
+[data-testid="stNumberInput"] input {
+    background-color: #1E2432 !important;
+    color: #E2E8F0 !important;
+    border-color: #3D4A5C !important;
+}
+[data-testid="stNumberInput"] button {
+    background-color: #2D3748 !important;
+    color: #E2E8F0 !important;
+    border-color: #3D4A5C !important;
+}
+
+/* ── Selectbox ── */
+[data-baseweb="select"] > div:first-child {
+    background-color: #1E2432 !important;
+    border-color: #3D4A5C !important;
+}
+[data-baseweb="select"] span,
+[data-baseweb="select"] div { color: #E2E8F0 !important; }
+[data-baseweb="select"] svg { fill: #E2E8F0 !important; }
+
+/* ── Dropdown / popover ── */
+[data-baseweb="popover"],
+[data-baseweb="menu"] { background-color: #1E2432 !important; }
+[data-baseweb="popover"] *,
+[data-baseweb="menu"] * { color: #E2E8F0 !important; }
+[role="option"]:hover,
+[aria-selected="true"] { background-color: #2D3748 !important; }
+
+/* ── Multiselect ── */
+[data-testid="stMultiSelect"] [data-baseweb="tag"] {
+    background-color: #2C5282 !important;
+}
+[data-testid="stMultiSelect"] [data-baseweb="tag"] span { color: #E2E8F0 !important; }
+[data-testid="stMultiSelect"] input {
+    background-color: #1E2432 !important;
+    color: #E2E8F0 !important;
+}
+
+/* ── Radio buttons ── */
+[data-testid="stRadio"] label span { color: #E2E8F0 !important; }
+
+/* ── Checkboxes ── */
+[data-testid="stCheckbox"] label span { color: #E2E8F0 !important; }
+
+/* ── Toggle ── */
+[data-testid="stToggle"] label span { color: #E2E8F0 !important; }
+[data-testid="stToggleLabel"] { color: #E2E8F0 !important; }
+
+/* ── Expanders ── */
+[data-testid="stExpander"] {
+    background-color: #1A1D27 !important;
+    border: 1px solid #2D3748 !important;
+}
+[data-testid="stExpander"] > div { background-color: #1A1D27 !important; }
+
+/* ── Alert / info / warning / error boxes ── */
+[data-testid="stAlert"] {
+    background-color: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+}
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] span { color: #E2E8F0 !important; }
+
+/* ── Info/success message containers ── */
+[data-testid="stSuccessMessage"] p,
+[data-testid="stInfoMessage"] p,
+[data-testid="stWarningMessage"] p,
+[data-testid="stErrorMessage"] p { color: #E2E8F0 !important; }
+
+/* ── Horizontal rule ── */
+hr { border-color: #2D3748 !important; }
+
+/* ── Code blocks ── */
+code { background-color: #1E2432 !important; color: #E2E8F0 !important; }
+pre  { background-color: #1A1D27 !important; }
+pre code { background-color: transparent !important; }
+
+/* ── Spinner text ── */
+[data-testid="stSpinner"] p { color: #E2E8F0 !important; }
+"""
+
+
 def get_css(dark: bool) -> str:
     if dark:
         bg          = "#0E1117"
@@ -181,6 +301,8 @@ div[data-testid="stDownloadButton"] button:hover {{ background: #2F855A !importa
 
 /* ── Expander summary ── */
 details summary p {{ font-weight: 600 !important; color: {exp_color} !important; }}
+
+{_dark_overrides() if dark else ""}
 </style>"""
 
 
