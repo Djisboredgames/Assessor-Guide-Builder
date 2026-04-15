@@ -103,6 +103,17 @@ def open_docm(content: bytes):
 
 # ── Network helpers ───────────────────────────────────────────────
 
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-AU,en;q=0.9",
+    "Referer": "https://training.gov.au/",
+}
+
 def build_download_urls(unit_code: str, package_code: str = None) -> list:
     code = unit_code.upper().strip()
     if package_code:
@@ -129,7 +140,7 @@ def build_download_urls(unit_code: str, package_code: str = None) -> list:
 def try_download_file(url: str, timeout: int = 30) -> Optional[bytes]:
     try:
         print(f"  [download] GET {url}")
-        resp = requests.get(url, timeout=timeout, allow_redirects=True)
+        resp = requests.get(url, timeout=timeout, allow_redirects=True, headers=_HEADERS)
         print(f"  [download] Status={resp.status_code}, Size={len(resp.content)}")
         if resp.status_code == 200 and len(resp.content) > 500:
             return resp.content
@@ -142,8 +153,11 @@ def try_download_file(url: str, timeout: int = 30) -> Optional[bytes]:
 def try_api_endpoint(unit_code: str) -> dict:
     code = unit_code.upper().strip()
     try:
-        resp = requests.get(f"https://training.gov.au/api/training/{code}",
-                          timeout=10, headers={"Accept": "application/json"})
+        resp = requests.get(
+            f"https://training.gov.au/api/training/{code}",
+            timeout=10,
+            headers={**_HEADERS, "Accept": "application/json"},
+        )
         if resp.status_code == 200:
             return resp.json()
     except Exception:

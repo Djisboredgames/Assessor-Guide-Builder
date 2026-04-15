@@ -171,8 +171,18 @@ code { background-color: #1E2432 !important; color: #E2E8F0 !important; }
 pre  { background-color: #1A1D27 !important; }
 pre code { background-color: transparent !important; }
 
-/* ── Spinner text ── */
-[data-testid="stSpinner"] p { color: #E2E8F0 !important; }
+/* ── Spinner ── */
+[data-testid="stSpinner"] p,
+[data-testid="stSpinner"] span { color: #E2E8F0 !important; }
+[data-testid="stSpinner"] > div { background-color: #1A1D27 !important; }
+
+/* ── Placeholder text ── */
+input::placeholder,
+textarea::placeholder { color: #5A6478 !important; opacity: 1 !important; }
+
+/* ── st.text() / st.empty() progress text ── */
+[data-testid="stText"] p,
+[data-testid="stText"] { color: #E2E8F0 !important; }
 """
 
 
