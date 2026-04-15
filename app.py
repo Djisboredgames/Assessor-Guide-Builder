@@ -23,6 +23,7 @@ def load_settings() -> dict:
         "ai_provider": "none",
         "claude_api_key": "",
         "ollama_model": "llama3.1:8b",
+        "dark_mode": False,
         "cdu_locations": "CDU Casuarina, Alice Springs or Haileybury Rendall School",
         "default_ai_statement": (
             "Students may use AI tools to assist with research and understanding concepts, "
@@ -55,48 +56,72 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""
-<style>
+def get_css(dark: bool) -> str:
+    if dark:
+        bg          = "#0E1117"
+        bg2         = "#1A1D27"
+        text        = "#FAFAFA"
+        border      = "#2D3748"
+        hdr_grad    = "linear-gradient(135deg, #0D1B2A 0%, #162444 100%)"
+        sec_color   = "#90CDF4"
+        sec_border  = "#2D3748"
+        sec_num     = "#2C5282"
+        sb_bg       = "#12161F"
+        sb_border   = "#2D3748"
+        exp_color   = "#90CDF4"
+        ps_done     = "background:#1C3A27;border-color:#38A169;color:#68D391"
+        ps_now      = "background:#1A2744;border-color:#4A90D9;color:#90CDF4;font-weight:700"
+        ps_later    = "background:#1A1D27;border-color:#2D3748;color:#4A5568"
+    else:
+        bg          = "#FFFFFF"
+        bg2         = "#F0F4F8"
+        text        = "#1A1A1A"
+        border      = "#E2E8F0"
+        hdr_grad    = "linear-gradient(135deg, #1A3A5C 0%, #2C5282 100%)"
+        sec_color   = "#1A3A5C"
+        sec_border  = "#E2ECF5"
+        sec_num     = "#1A3A5C"
+        sb_bg       = "#F8FAFC"
+        sb_border   = "#E2E8F0"
+        exp_color   = "#1A3A5C"
+        ps_done     = "background:#EBF5EB;border-color:#38A169;color:#276749"
+        ps_now      = "background:#EBF0F8;border-color:#1A3A5C;color:#1A3A5C;font-weight:700"
+        ps_later    = "background:#F7FAFC;border-color:#CBD5E0;color:#A0AEC0"
+
+    return f"""<style>
 /* ── Hide Streamlit chrome ── */
-#MainMenu, footer { visibility: hidden; }
-.stDeployButton { display: none !important; }
+#MainMenu, footer {{ visibility: hidden; }}
+header[data-testid="stHeader"] {{ display: none !important; }}
+.stDeployButton {{ display: none !important; }}
 
 /* ── Typography ── */
-html, body, [class*="css"] {
+html, body, [class*="css"] {{
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
+    color: {text};
+}}
 
-/* ── Page layout ── */
-.block-container {
-    padding-top: 1.25rem !important;
+/* ── Page background & layout ── */
+.stApp, [data-testid="stAppViewContainer"] {{ background-color: {bg} !important; }}
+.block-container {{
+    padding-top: 1rem !important;
     padding-bottom: 2rem !important;
     max-width: 1080px !important;
-}
+}}
 
 /* ── App header banner ── */
-.app-header {
-    background: linear-gradient(135deg, #1A3A5C 0%, #2C5282 100%);
+.app-header {{
+    background: {hdr_grad};
     border-radius: 10px;
     padding: 1.2rem 1.75rem;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-.app-header-left { flex: 1; }
-.app-header-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: white;
-    margin: 0;
-    letter-spacing: -0.3px;
-}
-.app-header-sub {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.68);
-    margin: 0.2rem 0 0 0;
-}
-.app-header-badge {
+}}
+.app-header-left {{ flex: 1; }}
+.app-header-title {{ font-size:1.4rem; font-weight:700; color:white; margin:0; letter-spacing:-0.3px; }}
+.app-header-sub   {{ font-size:0.82rem; color:rgba(255,255,255,0.68); margin:0.2rem 0 0 0; }}
+.app-header-badge {{
     background: rgba(255,255,255,0.15);
     border: 1px solid rgba(255,255,255,0.3);
     color: rgba(255,255,255,0.9);
@@ -105,99 +130,58 @@ html, body, [class*="css"] {
     font-size: 0.78rem;
     font-weight: 600;
     white-space: nowrap;
-}
+}}
 
 /* ── Step progress bar ── */
-.progress-wrap {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 1.5rem;
-}
-.progress-step {
-    flex: 1;
-    padding: 0.55rem 0.5rem;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-align: center;
-    border: 1.5px solid;
-}
-.ps-done  { background:#EBF5EB; border-color:#38A169; color:#276749; }
-.ps-now   { background:#EBF0F8; border-color:#1A3A5C; color:#1A3A5C; font-weight:700; }
-.ps-later { background:#F7FAFC; border-color:#CBD5E0; color:#A0AEC0; }
+.progress-wrap {{ display:flex; gap:6px; margin-bottom:1.5rem; }}
+.progress-step {{
+    flex: 1; padding: 0.55rem 0.5rem; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 500; text-align: center; border: 1.5px solid;
+}}
+.ps-done   {{ {ps_done}; }}
+.ps-now    {{ {ps_now}; }}
+.ps-later  {{ {ps_later}; }}
 
 /* ── Section title ── */
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #1A3A5C;
-    margin-bottom: 1rem;
-    padding-bottom: 0.55rem;
-    border-bottom: 2px solid #E2ECF5;
-}
-.section-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: #1A3A5C;
-    color: white;
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
-}
+.section-title {{
+    display: flex; align-items: center; gap: 9px;
+    font-size: 1.05rem; font-weight: 600; color: {sec_color};
+    margin-bottom: 1rem; padding-bottom: 0.55rem;
+    border-bottom: 2px solid {sec_border};
+}}
+.section-num {{
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; background: {sec_num}; color: white;
+    border-radius: 50%; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}}
 
 /* ── Sidebar ── */
-div[data-testid="stSidebar"] {
-    background: #F8FAFC;
-    border-right: 1px solid #E2E8F0;
-}
-.sidebar-logo {
-    background: #1A3A5C;
-    color: white;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-align: center;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-section[data-testid="stSidebar"] label { font-size: 0.82rem !important; }
+div[data-testid="stSidebar"],
+[data-testid="stSidebarContent"] {{ background: {sb_bg} !important; border-right: 1px solid {sb_border} !important; }}
+.sidebar-logo {{
+    background: #1A3A5C; color: white; padding: 0.75rem 1rem; border-radius: 8px;
+    margin-bottom: 1rem; font-weight: 700; font-size: 0.8rem;
+    text-align: center; letter-spacing: 1px; text-transform: uppercase;
+}}
+section[data-testid="stSidebar"] label {{ font-size: 0.82rem !important; }}
 
 /* ── Primary buttons ── */
-div[data-testid="stButton"] button[kind="primary"] {
-    background: #1A3A5C !important;
-    border: none !important;
-    border-radius: 7px !important;
-    font-weight: 600 !important;
-}
-div[data-testid="stButton"] button[kind="primary"]:hover {
-    background: #2C5282 !important;
-}
+div[data-testid="stButton"] button[kind="primary"] {{
+    background: #1A3A5C !important; border: none !important;
+    border-radius: 7px !important; font-weight: 600 !important;
+}}
+div[data-testid="stButton"] button[kind="primary"]:hover {{ background: #2C5282 !important; }}
 
 /* ── Download button ── */
-div[data-testid="stDownloadButton"] button {
-    background: #276749 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 7px !important;
-    font-weight: 600 !important;
-}
-div[data-testid="stDownloadButton"] button:hover {
-    background: #2F855A !important;
-}
+div[data-testid="stDownloadButton"] button {{
+    background: #276749 !important; color: white !important;
+    border: none !important; border-radius: 7px !important; font-weight: 600 !important;
+}}
+div[data-testid="stDownloadButton"] button:hover {{ background: #2F855A !important; }}
 
 /* ── Expander summary ── */
-details summary p { font-weight: 600 !important; color: #1A3A5C !important; }
-</style>
-""", unsafe_allow_html=True)
+details summary p {{ font-weight: 600 !important; color: {exp_color} !important; }}
+</style>"""
 
 
 def step_header(n, title):
@@ -241,8 +225,15 @@ def render_sidebar():
 
     with st.sidebar:
         st.markdown('<div class="sidebar-logo">Assessor Guide Builder</div>', unsafe_allow_html=True)
-        st.markdown("**Settings**")
 
+        # Dark mode toggle — auto-saves immediately
+        dark = st.toggle("Dark mode", value=s.get("dark_mode", False), key="sb_dark")
+        if dark != s.get("dark_mode", False):
+            s["dark_mode"] = dark
+            save_settings(s)
+            st.rerun()
+
+        st.markdown("---")
         st.markdown("**AI Question Generation**")
         provider = st.radio(
             "Provider",
@@ -326,6 +317,7 @@ def render_sidebar():
 # ══════════════════════════════════════════════════════════════════
 def main():
     init()
+    st.markdown(get_css(st.session_state.settings.get("dark_mode", False)), unsafe_allow_html=True)
     render_sidebar()
 
     st.markdown(
