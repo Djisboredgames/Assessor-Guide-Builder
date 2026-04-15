@@ -97,6 +97,26 @@ def setup():
 
 # ── Launch ────────────────────────────────────────────────────────────────────
 
+def _free_port():
+    """Kill any process using PORT so we get a clean start."""
+    import signal
+    try:
+        result = subprocess.run(
+            ["lsof", "-ti", f":{PORT}"],
+            capture_output=True, text=True
+        )
+        pids = result.stdout.strip().split()
+        for pid in pids:
+            try:
+                os.kill(int(pid), signal.SIGTERM)
+            except Exception:
+                pass
+        if pids:
+            time.sleep(0.8)
+    except Exception:
+        pass  # lsof not available (Windows) — skip
+
+
 def _open_browser():
     time.sleep(2.5)
     webbrowser.open(f"http://localhost:{PORT}")
@@ -104,6 +124,7 @@ def _open_browser():
 
 def launch():
     streamlit = _venv_streamlit()
+    _free_port()
     log(f"\n  Starting at http://localhost:{PORT}")
     log("  Press Ctrl+C to stop.\n")
     threading.Thread(target=_open_browser, daemon=True).start()
