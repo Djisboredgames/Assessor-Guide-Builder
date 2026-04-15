@@ -50,35 +50,164 @@ def save_settings(settings: dict):
 # ── Page config ───────────────────────────────────────────────────
 st.set_page_config(
     page_title="Assessor Guide Builder",
-    page_icon="AG",
+    page_icon="📋",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 st.markdown("""
 <style>
-    .main-title { font-size:1.8rem; font-weight:700; color:#1A1A2E; margin-bottom:0.2rem; }
-    .main-sub { font-size:0.95rem; color:#555; margin-bottom:1.5rem; }
-    .step-indicator { display:inline-block; background:#1A1A2E; color:white; border-radius:50%;
-        width:28px; height:28px; text-align:center; line-height:28px; font-weight:600;
-        font-size:0.85rem; margin-right:6px; }
-    .step-label { font-size:1.15rem; font-weight:600; color:#1A1A2E; }
-    .settings-header { font-size:1rem; font-weight:600; color:#1A1A2E; margin-top:1rem; }
-    div[data-testid="stSidebar"] { background:#fafafa; }
-    section[data-testid="stSidebar"] .stTextInput label,
-    section[data-testid="stSidebar"] .stTextArea label,
-    section[data-testid="stSidebar"] .stSelectbox label { font-size:0.85rem; }
+/* ── Hide Streamlit chrome ── */
+#MainMenu, footer { visibility: hidden; }
+.stDeployButton { display: none !important; }
+
+/* ── Typography ── */
+html, body, [class*="css"] {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ── Page layout ── */
+.block-container {
+    padding-top: 1.25rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 1080px !important;
+}
+
+/* ── App header banner ── */
+.app-header {
+    background: linear-gradient(135deg, #1A3A5C 0%, #2C5282 100%);
+    border-radius: 10px;
+    padding: 1.2rem 1.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.app-header-left { flex: 1; }
+.app-header-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+.app-header-sub {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.68);
+    margin: 0.2rem 0 0 0;
+}
+.app-header-badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.9);
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Step progress bar ── */
+.progress-wrap {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+}
+.progress-step {
+    flex: 1;
+    padding: 0.55rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    border: 1.5px solid;
+}
+.ps-done  { background:#EBF5EB; border-color:#38A169; color:#276749; }
+.ps-now   { background:#EBF0F8; border-color:#1A3A5C; color:#1A3A5C; font-weight:700; }
+.ps-later { background:#F7FAFC; border-color:#CBD5E0; color:#A0AEC0; }
+
+/* ── Section title ── */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1A3A5C;
+    margin-bottom: 1rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 2px solid #E2ECF5;
+}
+.section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #1A3A5C;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ── Sidebar ── */
+div[data-testid="stSidebar"] {
+    background: #F8FAFC;
+    border-right: 1px solid #E2E8F0;
+}
+.sidebar-logo {
+    background: #1A3A5C;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+section[data-testid="stSidebar"] label { font-size: 0.82rem !important; }
+
+/* ── Primary buttons ── */
+div[data-testid="stButton"] button[kind="primary"] {
+    background: #1A3A5C !important;
+    border: none !important;
+    border-radius: 7px !important;
+    font-weight: 600 !important;
+}
+div[data-testid="stButton"] button[kind="primary"]:hover {
+    background: #2C5282 !important;
+}
+
+/* ── Download button ── */
+div[data-testid="stDownloadButton"] button {
+    background: #276749 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 7px !important;
+    font-weight: 600 !important;
+}
+div[data-testid="stDownloadButton"] button:hover {
+    background: #2F855A !important;
+}
+
+/* ── Expander summary ── */
+details summary p { font-weight: 600 !important; color: #1A3A5C !important; }
 </style>
 """, unsafe_allow_html=True)
 
 
 def step_header(n, title):
     st.markdown(
-        f'<span class="step-indicator">{n}</span>'
-        f'<span class="step-label">{title}</span>',
+        f'<div class="section-title">'
+        f'<span class="section-num">{n}</span>'
+        f'<span>{title}</span>'
+        f'</div>',
         unsafe_allow_html=True
     )
-    st.markdown("---")
 
 
 def init():
@@ -111,7 +240,8 @@ def render_sidebar():
     s = st.session_state.settings
 
     with st.sidebar:
-        st.markdown('<p class="settings-header">Settings</p>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-logo">Assessor Guide Builder</div>', unsafe_allow_html=True)
+        st.markdown("**Settings**")
 
         st.markdown("**AI Question Generation**")
         provider = st.radio(
@@ -190,7 +320,7 @@ def render_sidebar():
             st.success("Settings saved")
 
         st.markdown("---")
-        st.caption("Assessor Guide Builder v1.0")
+        st.caption("CDU Assessor Guide Builder v1.0")
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -198,24 +328,32 @@ def main():
     init()
     render_sidebar()
 
-    st.markdown('<p class="main-title">Assessor Guide Builder</p>', unsafe_allow_html=True)
     st.markdown(
-        '<p class="main-sub">Generate VET Assessor Guides from training.gov.au unit data</p>',
-        unsafe_allow_html=True
+        '<div class="app-header">'
+        '<div class="app-header-left">'
+        '<p class="app-header-title">Assessor Guide Builder</p>'
+        '<p class="app-header-sub">Generate VET Assessor Guides from training.gov.au unit data — Charles Darwin University</p>'
+        '</div>'
+        '<div class="app-header-badge">v1.0</div>'
+        '</div>',
+        unsafe_allow_html=True,
     )
 
     steps = ["Fetch Unit", "Review Data", "Configure Tasks", "Generate"]
-    cols = st.columns(len(steps))
-    for i, (col, label) in enumerate(zip(cols, steps), 1):
-        with col:
-            if i < st.session_state.step:
-                st.success(f"Step {i}: {label}")
-            elif i == st.session_state.step:
-                st.info(f"Step {i}: {label}")
-            else:
-                st.markdown(f"Step {i}: {label}")
-
-    st.markdown("")
+    step_html = '<div class="progress-wrap">'
+    for i, label in enumerate(steps, 1):
+        if i < st.session_state.step:
+            cls = "ps-done"
+            icon = "✓ "
+        elif i == st.session_state.step:
+            cls = "ps-now"
+            icon = f"{i}. "
+        else:
+            cls = "ps-later"
+            icon = f"{i}. "
+        step_html += f'<div class="progress-step {cls}">{icon}{label}</div>'
+    step_html += "</div>"
+    st.markdown(step_html, unsafe_allow_html=True)
     {1: step1, 2: step2, 3: step3, 4: step4}[st.session_state.step]()
 
 
@@ -558,9 +696,11 @@ def step4():
                 st.session_state.generated_filename = filename
                 st.success("Document generated successfully")
             except Exception as e:
-                st.error(f"Error: {e}")
                 import traceback
-                st.code(traceback.format_exc())
+                import logging
+                logging.error("Document generation failed:\n%s", traceback.format_exc())
+                st.error(f"Document generation failed: {e}")
+                st.caption("If this error persists, review your unit data in Step 2 and try again.")
 
     if st.session_state.get("generated_path") and os.path.exists(st.session_state.generated_path):
         with open(st.session_state.generated_path, "rb") as f:
